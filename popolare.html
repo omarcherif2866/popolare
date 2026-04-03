@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Popolare Trattoria — Pizzeria Italienne</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --font-display: 'Cormorant Garamond', serif;
+      --font-body: 'DM Sans', sans-serif;
+      --dark: #1a1208;
+      --light: #fdf6ec;
+      --accent: #c1440e;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--light);
+      color: var(--dark);
+      overflow-x: hidden;
+    }
+
+    /* ─── NAVBAR ─── */
+    .navbar {
+      position: fixed;
+      top: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 48px;
+      background: rgba(255,255,255,0.90);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding: 12px 36px;
+      border-radius: 60px;
+      z-index: 200;
+      box-shadow: 0 4px 28px rgba(0,0,0,0.10);
+      white-space: nowrap;
+    }
+
+    .navbar .logo {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      color: var(--dark);
+    }
+
+    .navbar nav { display: flex; gap: 28px; }
+
+    .navbar nav a {
+      font-size: 11px;
+      font-weight: 400;
+      text-decoration: none;
+      color: var(--dark);
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      opacity: 0.55;
+      transition: opacity 0.2s;
+    }
+    .navbar nav a:hover { opacity: 1; }
+
+    /* ─── HERO ─── */
+    .hero {
+      height: 100vh;
+      min-height: 640px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 80px;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.9s ease;
+    }
+
+    .bg-pizza  { background: radial-gradient(circle at 68% 48%, #ff9a55, #b83b0a); }
+    .bg-pasta  { background: radial-gradient(circle at 68% 48%, #f7d06a, #d4850a); }
+
+    .hero-bg-word {
+      position: absolute;
+      font-family: var(--font-display);
+      font-size: clamp(120px, 20vw, 280px);
+      font-weight: 300;
+      color: rgba(255,255,255,0.065);
+      letter-spacing: -0.04em;
+      pointer-events: none;
+      white-space: nowrap;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 0;
+      user-select: none;
+    }
+
+    /* ── Hero Content ── */
+    .hero-content {
+      z-index: 3;
+      color: white;
+      max-width: 360px;
+      flex-shrink: 0;
+    }
+
+    .hero-eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      opacity: 0.7;
+      margin-bottom: 20px;
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(36px, 5vw, 62px);
+      font-weight: 300;
+      line-height: 1.08;
+      margin-bottom: 18px;
+      transition: opacity 0.4s ease;
+    }
+    .hero-title em { font-style: italic; }
+
+    .hero-price {
+      font-family: var(--font-display);
+      font-size: 30px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      transition: opacity 0.4s ease;
+    }
+
+    .hero-desc {
+      font-size: 13px;
+      opacity: 0.75;
+      line-height: 1.8;
+      margin-bottom: 36px;
+      max-width: 270px;
+      transition: opacity 0.4s ease;
+    }
+
+    .hero-btn {
+      display: inline-block;
+      padding: 14px 34px;
+      border: 1.5px solid rgba(255,255,255,0.75);
+      border-radius: 60px;
+      color: white;
+      font-family: var(--font-body);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      background: transparent;
+      transition: background 0.3s, color 0.3s, border-color 0.3s;
+      text-decoration: none;
+    }
+    .hero-btn:hover {
+      background: white;
+      color: var(--dark);
+      border-color: white;
+    }
+
+    /* ── Product Display ── */
+    .product-container {
+      position: relative;
+      width: 370px;
+      height: 370px;
+      z-index: 2;
+      flex-shrink: 0;
+      /* drop shadow under the SVG dish */
+      filter: drop-shadow(0 32px 48px rgba(0,0,0,0.22));
+    }
+
+    .product {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0; left: 0;
+      opacity: 0;
+      transform: rotate(0deg) scale(1);
+      transition: all 0.85s cubic-bezier(0.34, 1.3, 0.64, 1);
+      will-change: transform, opacity;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .product svg { width: 100%; height: 100%; }
+
+    .product.active { opacity: 1; z-index: 2; }
+    .product.exit   { transform: rotate(360deg) scale(1.2); opacity: 0; filter: blur(3px); }
+    .product.enter  { transform: rotate(-360deg) scale(1.2); opacity: 0; }
+    .product.enter.active { transform: rotate(0deg) scale(1); opacity: 1; }
+
+    /* ── Side Selectors ── */
+    .side-selectors {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      z-index: 3;
+    }
+
+    .sel-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      opacity: 0.45;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .sel-item.active-sel { opacity: 1; }
+    .sel-item:hover { opacity: 0.85; transform: scale(1.06); }
+
+    .sel-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.14);
+      border: 1.5px solid rgba(255,255,255,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s, border-color 0.3s;
+      backdrop-filter: blur(8px);
+    }
+    .sel-item.active-sel .sel-icon {
+      background: rgba(255,255,255,0.26);
+      border-color: rgba(255,255,255,0.85);
+    }
+    .sel-label {
+      color: white;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    /* ─── MENU SECTION ─── */
+    .menu-section {
+      padding: 100px 80px;
+      background: var(--light);
+      id: menu;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 52px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(52px, 8vw, 100px);
+      font-weight: 300;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .section-title em { font-style: italic; color: var(--accent); }
+
+    .section-note {
+      font-size: 12px;
+      opacity: 0.45;
+      max-width: 190px;
+      text-align: right;
+      line-height: 1.75;
+    }
+
+    .menu-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 44px;
+      border-bottom: 1px solid rgba(26,18,8,0.12);
+    }
+
+    .menu-tab {
+      padding: 12px 30px;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--dark);
+      opacity: 0.38;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: opacity 0.25s, border-color 0.25s;
+      font-family: var(--font-body);
+    }
+    .menu-tab.active { opacity: 1; border-bottom-color: var(--accent); }
+
+    .menu-grid {
+      display: none;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      background: rgba(26,18,8,0.07);
+    }
+    .menu-grid.active { display: grid; }
+
+    .menu-item {
+      background: var(--light);
+      padding: 36px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+      transition: background 0.22s;
+    }
+    .menu-item:hover { background: #fff9f3; }
+
+    .item-info { flex: 1; }
+
+    .item-name {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 400;
+      margin-bottom: 6px;
+      line-height: 1.1;
+    }
+
+    .item-desc {
+      font-size: 12px;
+      opacity: 0.5;
+      line-height: 1.8;
+      letter-spacing: 0.02em;
+    }
+
+    .item-tag {
+      display: inline-block;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border: 1px solid rgba(193,68,14,0.35);
+      color: var(--accent);
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-top: 12px;
+    }
+
+    .item-price {
+      font-family: var(--font-display);
+      font-size: 30px;
+      font-weight: 300;
+      white-space: nowrap;
+      opacity: 0.75;
+      padding-top: 2px;
+    }
+
+    /* ─── ABOUT ─── */
+    .about-section {
+      padding: 90px 80px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      background: #1a1208;
+      color: white;
+    }
+
+    .about-left {}
+
+    .about-title {
+      font-family: var(--font-display);
+      font-size: clamp(36px, 5vw, 64px);
+      font-weight: 300;
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+    .about-title em { font-style: italic; color: #ff9a55; }
+
+    .about-text {
+      font-size: 13px;
+      line-height: 2;
+      opacity: 0.62;
+      margin-bottom: 36px;
+    }
+
+    .about-cta {
+      display: inline-block;
+      padding: 13px 34px;
+      border: 1.5px solid rgba(255,255,255,0.45);
+      border-radius: 60px;
+      color: white;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      background: transparent;
+      text-decoration: none;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .about-cta:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.7); }
+
+    .about-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px 32px;
+    }
+
+    .stat-number {
+      font-family: var(--font-display);
+      font-size: 64px;
+      font-weight: 300;
+      color: #ff9a55;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .stat-label {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.42;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      padding: 36px 80px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(26,18,8,0.1);
+    }
+
+    .footer-logo {
+      font-family: var(--font-display);
+      font-size: 21px;
+      font-weight: 600;
+    }
+    .footer-copy { font-size: 11px; opacity: 0.35; }
+    .footer-address { font-size: 11px; opacity: 0.45; text-align: right; line-height: 1.8; }
+
+    /* ─── RESPONSIVE — Tablet ─── */
+    @media (max-width: 1024px) {
+      .hero { padding: 0 40px; gap: 16px; }
+      .product-container { width: 300px; height: 300px; }
+      .hero-content { max-width: 300px; }
+      .menu-section, .about-section, footer { padding-left: 40px; padding-right: 40px; }
+    }
+
+    /* ─── RESPONSIVE — Mobile ─── */
+    @media (max-width: 768px) {
+
+      /* Navbar */
+      .navbar {
+        top: 14px;
+        gap: 0;
+        padding: 10px 18px 10px 22px;
+        justify-content: space-between;
+        width: calc(100% - 32px);
+        max-width: 480px;
+      }
+      .navbar nav { gap: 18px; }
+      .navbar nav a { font-size: 10px; letter-spacing: 0.07em; }
+
+      /* Hero: vertical stack */
+      .hero {
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 0 0 48px;
+        height: 100svh;
+        min-height: 580px;
+        gap: 0;
+        text-align: center;
+      }
+
+      /* Illustration floats at top, centered */
+      .product-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -58%);
+        width: 260px;
+        height: 260px;
+        z-index: 1;
+        opacity: 0.55;
+        filter: drop-shadow(0 24px 40px rgba(0,0,0,0.28));
+      }
+
+      /* Text block sits at bottom over faded illustration */
+      .hero-content {
+        position: relative;
+        z-index: 3;
+        max-width: 100%;
+        padding: 28px 28px 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.30) 0%, transparent 100%);
+        width: 100%;
+        text-align: center;
+      }
+
+      .hero-eyebrow { margin-bottom: 10px; }
+      .hero-title { font-size: clamp(34px, 9vw, 52px); margin-bottom: 10px; }
+      .hero-price { font-size: 26px; margin-bottom: 8px; }
+      .hero-desc { font-size: 12px; max-width: 100%; margin-bottom: 24px; }
+
+      /* Selectors become horizontal strip at bottom */
+      .side-selectors {
+        position: relative;
+        z-index: 3;
+        flex-direction: row;
+        justify-content: center;
+        gap: 20px;
+        padding: 20px 0 0;
+        width: 100%;
+      }
+
+      .sel-icon { width: 48px; height: 48px; }
+
+      /* Menu */
+      .menu-section { padding: 60px 20px; }
+      .section-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .section-note { text-align: left; max-width: 100%; }
+      .menu-grid { grid-template-columns: 1fr; }
+      .menu-item { padding: 24px 20px; }
+      .item-name { font-size: 22px; }
+
+      /* About */
+      .about-section { grid-template-columns: 1fr; gap: 48px; padding: 60px 24px; }
+      .about-stats { grid-template-columns: 1fr 1fr; gap: 28px; }
+      .stat-number { font-size: 48px; }
+
+      /* Footer */
+      footer {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+        padding: 32px 24px;
+      }
+      .footer-address { text-align: center; }
+    }
+
+    /* Very small screens */
+    @media (max-width: 400px) {
+      .navbar nav a:not(:last-child) { display: none; }
+      .hero-title { font-size: 32px; }
+      .product-container { width: 210px; height: 210px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar">
+  <div class="logo">Popolare</div>
+  <nav>
+    <a href="#menu">Menu</a>
+    <a href="#about">À Propos</a>
+    <a href="#contact">Réserver</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero bg-pizza" id="hero">
+
+  <div class="hero-bg-word" id="bgWord">Napoli</div>
+
+  <div class="hero-content">
+    <p class="hero-eyebrow">Cuisine Italienne Authentique</p>
+    <h1 class="hero-title" id="heroTitle">La <em>Margherita</em><br>Napolitaine</h1>
+    <p class="hero-price" id="heroPrice">12 Dt</p>
+    <p class="hero-desc" id="heroDesc">Tomate San Marzano, fior di latte, basilic frais — la signature de Naples, préparée avec amour dans notre four à bois.</p>
+    <a href="#menu" class="hero-btn">Voir le Menu</a>
+  </div>
+
+  <div class="product-container">
+    <!-- Product 1: Pizza -->
+    <div id="product1" class="product active">
+      <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+        <!-- shadow -->
+        <ellipse cx="150" cy="268" rx="118" ry="12" fill="rgba(0,0,0,0.18)"/>
+        <!-- crust -->
+        <circle cx="150" cy="148" r="128" fill="#d49060"/>
+        <!-- inner crust ring -->
+        <circle cx="150" cy="148" r="115" fill="#c87840"/>
+        <!-- tomato sauce -->
+        <circle cx="150" cy="148" r="105" fill="#c0392b"/>
+        <!-- inner sauce variation -->
+        <circle cx="150" cy="148" r="95" fill="#b83020"/>
+        <!-- mozzarella blobs -->
+        <ellipse cx="148" cy="112" rx="24" ry="19" fill="#f4efe5" opacity="0.97"/>
+        <ellipse cx="188" cy="140" rx="21" ry="17" fill="#f4efe5" opacity="0.95"/>
+        <ellipse cx="175" cy="177" rx="19" ry="16" fill="#f4efe5" opacity="0.96"/>
+        <ellipse cx="135" cy="180" rx="22" ry="16" fill="#f4efe5" opacity="0.95"/>
+        <ellipse cx="110" cy="148" rx="19" ry="22" fill="#f4efe5" opacity="0.95"/>
+        <ellipse cx="155" cy="148" rx="14" ry="12" fill="#f4efe5" opacity="0.85"/>
+        <!-- basil leaves -->
+        <ellipse cx="144" cy="104" rx="11" ry="6" fill="#2d6a4f" transform="rotate(-35 144 104)" opacity="0.95"/>
+        <ellipse cx="194" cy="132" rx="10" ry="5.5" fill="#40916c" transform="rotate(22 194 132)" opacity="0.9"/>
+        <ellipse cx="173" cy="183" rx="11" ry="6" fill="#2d6a4f" transform="rotate(-15 173 183)" opacity="0.95"/>
+        <ellipse cx="102" cy="158" rx="9" ry="5" fill="#40916c" transform="rotate(48 102 158)" opacity="0.9"/>
+        <ellipse cx="137" cy="185" rx="9" ry="5" fill="#2d6a4f" transform="rotate(10 137 185)" opacity="0.85"/>
+        <!-- char dots on crust -->
+        <circle cx="88"  cy="80"  r="5.5" fill="#7a3810" opacity="0.55"/>
+        <circle cx="212" cy="82"  r="4.5" fill="#6b3010" opacity="0.50"/>
+        <circle cx="238" cy="188" r="4"   fill="#7a3810" opacity="0.50"/>
+        <circle cx="72"  cy="200" r="3.5" fill="#6b3010" opacity="0.55"/>
+        <circle cx="148" cy="38"  r="4"   fill="#7a3810" opacity="0.45"/>
+        <circle cx="200" cy="230" r="3"   fill="#6b3010" opacity="0.45"/>
+        <!-- shine -->
+        <ellipse cx="118" cy="98" rx="38" ry="22" fill="rgba(255,255,255,0.10)" transform="rotate(-25 118 98)"/>
+      </svg>
+    </div>
+
+    <!-- Product 2: Pasta -->
+    <div id="product2" class="product">
+      <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+        <!-- shadow -->
+        <ellipse cx="150" cy="272" rx="108" ry="11" fill="rgba(0,0,0,0.16)"/>
+        <!-- bowl outer -->
+        <ellipse cx="150" cy="200" rx="126" ry="72" fill="#e2c898"/>
+        <!-- bowl body sides -->
+        <path d="M28 200 Q34 262 150 278 Q266 262 272 200 Z" fill="#c4a872"/>
+        <!-- bowl food area -->
+        <ellipse cx="150" cy="188" rx="112" ry="62" fill="#d4a030"/>
+        <!-- pasta nest base -->
+        <ellipse cx="150" cy="188" rx="98" ry="54" fill="#c89020"/>
+        <!-- spaghetti strands -->
+        <path d="M72 195 Q95 174 118 195 Q141 216 164 195 Q187 174 210 195" stroke="#b07818" stroke-width="3.5" fill="none" opacity="0.85"/>
+        <path d="M60 184 Q83 163 106 184 Q129 205 152 184 Q175 163 198 184 Q218 205 232 184" stroke="#c89020" stroke-width="3" fill="none" opacity="0.75"/>
+        <path d="M80 206 Q103 185 126 206 Q149 227 172 206 Q195 185 218 206" stroke="#a07010" stroke-width="3.5" fill="none" opacity="0.80"/>
+        <path d="M90 175 Q113 154 136 175 Q159 196 182 175 Q205 154 222 175" stroke="#c89020" stroke-width="2.5" fill="none" opacity="0.65"/>
+        <path d="M78 216 Q101 195 124 216 Q147 237 170 216 Q193 195 214 216" stroke="#9a6c10" stroke-width="2.5" fill="none" opacity="0.65"/>
+        <path d="M98 167 Q121 146 144 167 Q167 188 190 167" stroke="#d4a843" stroke-width="2" fill="none" opacity="0.55"/>
+        <!-- egg yolk -->
+        <circle cx="150" cy="188" r="26" fill="#f5c030" opacity="0.9"/>
+        <circle cx="150" cy="188" r="19" fill="#e8a818" opacity="0.95"/>
+        <circle cx="150" cy="188" r="10" fill="#d49010" opacity="0.9"/>
+        <!-- pecorino flakes -->
+        <ellipse cx="122" cy="170" rx="9" ry="4.5" fill="#f2edd8" opacity="0.82" transform="rotate(-22 122 170)"/>
+        <ellipse cx="178" cy="174" rx="7" ry="3.5" fill="#f2edd8" opacity="0.80" transform="rotate(18 178 174)"/>
+        <ellipse cx="165" cy="204" rx="8" ry="3.5" fill="#f2edd8" opacity="0.78" transform="rotate(-8 165 204)"/>
+        <ellipse cx="112" cy="197" rx="6" ry="3" fill="#f2edd8" opacity="0.78"/>
+        <ellipse cx="185" cy="196" rx="5" ry="2.5" fill="#f2edd8" opacity="0.72" transform="rotate(12 185 196)"/>
+        <!-- black pepper -->
+        <circle cx="136" cy="180" r="2.2" fill="#1e1a14" opacity="0.75"/>
+        <circle cx="160" cy="192" r="2" fill="#1e1a14" opacity="0.75"/>
+        <circle cx="143" cy="198" r="1.8" fill="#1e1a14" opacity="0.70"/>
+        <circle cx="168" cy="182" r="1.5" fill="#1e1a14" opacity="0.65"/>
+        <!-- rim highlight -->
+        <ellipse cx="150" cy="133" rx="106" ry="20" fill="rgba(255,255,255,0.14)"/>
+        <!-- bowl outer shine -->
+        <ellipse cx="105" cy="192" rx="22" ry="36" fill="rgba(255,255,255,0.06)" transform="rotate(15 105 192)"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Side Selectors -->
+  <div class="side-selectors">
+    <div class="sel-item active-sel" onclick="changeProduct('pizza')" id="sel-pizza">
+      <div class="sel-icon">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <circle cx="14" cy="14" r="12" fill="#c0392b" opacity="0.9"/>
+          <circle cx="14" cy="14" r="10" fill="#b83020"/>
+          <ellipse cx="14" cy="11" rx="4" ry="3" fill="#f4efe5" opacity="0.9"/>
+          <ellipse cx="18" cy="16" rx="3.5" ry="2.5" fill="#f4efe5" opacity="0.9"/>
+          <ellipse cx="11" cy="17" rx="3.5" ry="2.5" fill="#f4efe5" opacity="0.85"/>
+          <circle cx="13.5" cy="10.5" rx="1.5" ry="1" fill="#2d6a4f" transform="rotate(-20 13.5 10.5)"/>
+        </svg>
+      </div>
+      <span class="sel-label">Pizza</span>
+    </div>
+    <div class="sel-item" onclick="changeProduct('pasta')" id="sel-pasta">
+      <div class="sel-icon">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <ellipse cx="14" cy="17" rx="12" ry="8" fill="#c89020" opacity="0.9"/>
+          <path d="M5 17 Q7 23 14 25 Q21 23 23 17 Z" fill="#a07010" opacity="0.7"/>
+          <ellipse cx="14" cy="16" rx="10" ry="6.5" fill="#d4a030"/>
+          <path d="M7 17 Q10 14 13 17 Q16 20 19 17 Q22 14 24 17" stroke="#9a6c10" stroke-width="1.5" fill="none"/>
+          <circle cx="14" cy="16" r="3.5" fill="#f5c030" opacity="0.9"/>
+        </svg>
+      </div>
+      <span class="sel-label">Pasta</span>
+    </div>
+  </div>
+
+</section>
+
+<!-- MENU SECTION -->
+<section class="menu-section" id="menu">
+  <div class="section-header">
+    <h2 class="section-title">Notre<br><em>Menu</em></h2>
+    <p class="section-note">Tous nos plats sont préparés avec des ingrédients frais, importés directement d'Italie.</p>
+  </div>
+
+  <div class="menu-tabs">
+    <button class="menu-tab active" onclick="switchTab('pizzas', this)">Pizzas</button>
+    <button class="menu-tab" onclick="switchTab('pastas', this)">Pastas</button>
+    <button class="menu-tab" onclick="switchTab('desserts', this)">Desserts</button>
+  </div>
+
+  <!-- PIZZAS -->
+  <div class="menu-grid active" id="tab-pizzas">
+    <div class="menu-item">
+      <div class="item-info">
+        <h3 class="item-name">Margherita</h3>
+        <p class="item-desc">Tomate San Marzano, fior di latte, basilic frais, huile d'olive extra vierge</p>
+        <span class="item-tag">Signature Napolitaine</span>
+      </div>
+      <div class="item-price">12 Dt</div>
+    </div>
+    <div class="menu-item">
+      <div class="item-info">
+        <h3 class="item-name">Marinara</h3>
+        <p class="item-desc">Tomate San Marzano, ail, origan, huile d'olive extra vierge — sans fromage</p>
+        <span class="item-tag">Vegan</span>
+      </div>
+      <div class="item-price">10 Dt</div>
+    </div>
+    <div class="menu-item">
+      <div class="item-info">
+        <h3 class="item-name">Diavola</h3>
+        <p class="item-desc">Tomate San Marzano, mozzarella, salami piccante, piment de Calabre</p>
+      </div>
+      <div class="item-price">14 Dt</div>
+    </div>
+    <div class="menu-item">
+      <div class="item-info">
+        <h3 class="item-name">Quattro Formaggi</h3>
+        <p class="item-desc">Crème, mozzarella, gorgonzola, pecorino romano, parmesan 24 mois</p>
+      </div>
+      <div class="item-price">15 Dt</div>
+    </div>
+    <div class="menu-item">
+      <div class="item-info">
+        <h3 class="item-name">Bufala</h3>
+        <p class="item-desc">Tomate San Marzano, mozzarella di bufala DOP, tomates cerises, basilic</p>
+        <span class="item-tag">Spécialité</span>
+      </div>
+      <div class="item-price">16 Dt</div>
+    </div>
+    <div class="menu-item">
+      <div class="item-info">
+        <h3 class="item-name">Tartufo</h3>
+        <p class="item-desc">Crème de truffe noire, mozzarella, champignons de Paris, huile de truffe, roquette</p>
+      </div>
+      <div class="item-price">18 Dt</div>
+    </div>
+  </div>
+
+  <!-- PASTAS -->
+  <div class="menu-grid" id="tab-pastas">
+    <div class="menu-item">
+      <div class="item-info">
+        <h3 class="item-name">Carbonara</h3>
+        <p class="item-desc">Spaghetti, guanciale, pecorino romano, œuf entier, poivre noir — la vraie recette</p>
+        <span class="item-tag">Classique Romain</span>
+      </div>
+      <div class="item-price">13 Dt</div>
+    </div>
+    <div class="menu-item">
+      <div class="item-info">
+        <h3 class="item-name">Cacio e Pepe</h3>
+        <p class="item-desc">Spaghetti, pecorino romano DOP, poivre noir fraîchement moulu</p>
+        <span class="item-tag">Simplicité Absolue</span>
+      </div>
+      <div class="item-price">11 Dt</div>
+    </div>
+    <div class="menu-item">
+      <div class="item-info">
+        <h3 class="item-name">Tagliatelle al Ragù</h3>
+        <p class="item-desc">Tagliatelle fraîches, ragù de veau et bœuf mijoté 6h, parmesan 36 mois</p>
+      </div>
+      <div class="item-price">14 Dt</div>
+    </div>
+    <div class="menu-item">
+      <div class="item-info">
+        <h3 class="item-name">Arrabbiata</h3>
+        <p class="item-desc">Penne, tomate San Marzano, ail, piment de Calabre, basilic frais</p>
+        <span class="item-tag">Vegan</span>
+      </div>
+      <div class="item-price">11 Dt</div>
+    </div>
+    <div class="menu-item">
+      <div class="item-info">
+        <h3 class="item-name">Spaghetti alle Vongole</h3>
+        <p class="item-desc">Palourdes fraîches, vin blanc sec, ail, persil, piment, huile d'olive</p>
+        <span class="item-tag">Fraîcheur de Mer</span>
+      </div>
+      <div class="item-price">16 Dt</div>
+    </div>
+    <div class="menu-item">
+      <div class="item-info">
+        <h3 class="item-name">Amatriciana</h3>
+        <p class="item-desc">Rigatoni, guanciale, tomate San Marzano, pecorino romano, piment</p>
+      </div>
+      <div class="item-price">13 Dt</div>
+    </div>
+  </div>
+
+  <!-- DESSERTS -->
+  <div class="menu-grid" id="tab-desserts">
+    <div class="menu-item">
+      <div class="item-info">
+        <h3 class="item-name">Tiramisù</h3>
+        <p class="item-desc">Recette maison, mascarpone, café espresso, savoiards, cacao amer</p>
+        <span class="item-tag">Fait Maison</span>
+      </div>
+      <div class="item-price">7 Dt</div>
+    </div>
+    <div class="menu-item">
+      <div class="item-info">
+        <h3 class="item-name">Panna Cotta</h3>
+        <p class="item-desc">Crème vanille de Madagascar, coulis de fruits rouges frais</p>
+      </div>
+      <div class="item-price">6 Dt</div>
+    </div>
+    <div class="menu-item">
+      <div class="item-info">
+        <h3 class="item-name">Cannoli Siciliani</h3>
+        <p class="item-desc">Tubes croustillants, crème de ricotta sucrée, zestes d'orange, pistaches</p>
+        <span class="item-tag">Sicile</span>
+      </div>
+      <div class="item-price">7 Dt</div>
+    </div>
+    <div class="menu-item">
+      <div class="item-info">
+        <h3 class="item-name">Gelato Artigianale</h3>
+        <p class="item-desc">2 boules au choix : stracciatella, pistachio, fragola, cioccolato fondente</p>
+      </div>
+      <div class="item-price">5 Dt</div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about-section" id="about">
+  <div class="about-left">
+    <h2 class="about-title">Un Voyage<br>au Cœur de<br><em>l'Italie</em></h2>
+    <p class="about-text">
+      Popolare Trattoria est née d'une passion simple : partager la cuisine italienne dans sa forme la plus authentique. Nos pizzas napolitaines sont préparées selon les traditions de Naples — pâte fermentée 48h, four à bois à 480°C, ingrédients importés directement du Sud de l'Italie.
+      <br><br>
+      Chaque plat est une invitation au voyage. Chaque bouchée, une déclaration d'amour à la dolce vita.
+    </p>
+    <a href="#contact" class="about-cta">Réserver une Table</a>
+  </div>
+
+  <div class="about-stats">
+    <div>
+      <div class="stat-number">48h</div>
+      <div class="stat-label">Fermentation de la pâte</div>
+    </div>
+    <div>
+      <div class="stat-number">480°</div>
+      <div class="stat-label">Température du four à bois</div>
+    </div>
+    <div>
+      <div class="stat-number">100%</div>
+      <div class="stat-label">Ingrédients frais & locaux</div>
+    </div>
+    <div>
+      <div class="stat-number">∞</div>
+      <div class="stat-label">Amour dans chaque plat</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="contact">
+  <div class="footer-logo">Popolare Trattoria</div>
+  <p class="footer-copy">© 2025 Popolare Trattoria — Tous droits réservés</p>
+  <div class="footer-address">
+    12 Rue de Naples, Tunis<br>
+    Lun–Sam : 12h–22h30
+  </div>
+</footer>
+
+<script>
+  // ─── HERO ANIMATION ───────────────────────────────────────────────
+
+  const hero    = document.getElementById("hero");
+  const bgWord  = document.getElementById("bgWord");
+  const heroTitle= document.getElementById("heroTitle");
+  const heroPrice= document.getElementById("heroPrice");
+  const heroDesc = document.getElementById("heroDesc");
+
+  let current = document.getElementById("product1");
+  let next    = document.getElementById("product2");
+
+  const data = {
+    pizza: {
+      bg:    ["bg-pizza", "bg-pasta"],
+      title: "La <em>Margherita</em><br>Napolitaine",
+      price: "12 Dt",
+      desc:  "Tomate San Marzano, fior di latte, basilic frais — la signature de Naples, préparée avec amour dans notre four à bois.",
+      word:  "Napoli",
+      sel:   "sel-pizza"
+    },
+    pasta: {
+      bg:    ["bg-pasta", "bg-pizza"],
+      title: "Spaghetti<br><em>Carbonara</em>",
+      price: "13 Dt",
+      desc:  "Guanciale, pecorino romano, œuf entier et poivre noir — la recette authentique romaine, sans crème.",
+      word:  "Roma",
+      sel:   "sel-pasta"
+    }
+  };
+
+  let isAnimating = false;
+
+  function changeProduct(type) {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    const d = data[type];
+
+    // background
+    hero.classList.remove(...d.bg);
+    hero.classList.add(d.bg[0]);
+
+    // bg word fade
+    bgWord.style.opacity = "0";
+    bgWord.style.transition = "opacity 0.4s ease";
+    setTimeout(() => {
+      bgWord.textContent = d.word;
+      bgWord.style.opacity = "1";
+    }, 400);
+
+    // content fade
+    heroTitle.style.opacity = "0";
+    heroPrice.style.opacity = "0";
+    heroDesc.style.opacity  = "0";
+    setTimeout(() => {
+      heroTitle.innerHTML = d.title;
+      heroPrice.textContent = d.price;
+      heroDesc.textContent  = d.desc;
+      heroTitle.style.opacity = "1";
+      heroPrice.style.opacity = "1";
+      heroDesc.style.opacity  = "1";
+    }, 350);
+
+    heroTitle.style.transition = "opacity 0.35s ease";
+    heroPrice.style.transition = "opacity 0.35s ease";
+    heroDesc.style.transition  = "opacity 0.35s ease";
+
+    // selectors
+    document.querySelectorAll(".sel-item").forEach(el => el.classList.remove("active-sel"));
+    document.getElementById(d.sel).classList.add("active-sel");
+
+    // product swap (original animation logic)
+    next.classList.add("enter");
+    current.classList.add("exit");
+
+    setTimeout(() => {
+      next.classList.add("active");
+      next.classList.remove("enter");
+    }, 50);
+
+    setTimeout(() => {
+      current.classList.remove("active", "exit");
+      let temp = current;
+      current  = next;
+      next     = temp;
+      isAnimating = false;
+    }, 860);
+  }
+
+  // ─── MENU TABS ────────────────────────────────────────────────────
+
+  function switchTab(tabId, btn) {
+    document.querySelectorAll(".menu-grid").forEach(g => g.classList.remove("active"));
+    document.querySelectorAll(".menu-tab").forEach(b => b.classList.remove("active"));
+    document.getElementById("tab-" + tabId).classList.add("active");
+    btn.classList.add("active");
+  }
+</script>
+
+</body>
+</html>
