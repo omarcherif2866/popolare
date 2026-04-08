@@ -1,0 +1,690 @@
+
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/playfair-display@5/400.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/playfair-display@5/700.css" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --a9:#412402;--a8:#633806;--a7:#854F0B;--a5:#BA7517;--a3:#EF9F27;--a2:#FAC775;--a1:#FAEEDA;
+  --g9:#2C2C2A;--g8:#444441;--g6:#5F5E5A;--g1:#D3D1C7;--g0:#F1EFE8;
+}
+body{font-family:var(--font-sans,'Helvetica Neue',sans-serif);background:transparent;overflow-x:hidden}
+
+/* ── KEYFRAMES ── */
+@keyframes navIn{from{opacity:0;transform:translateY(-100%)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(36px)}to{opacity:1;transform:translateY(0)}}
+@keyframes heroLine{from{width:0}to{width:64px}}
+@keyframes flamePulse{0%,100%{transform:scaleY(1)}45%{transform:scaleY(1.12) scaleX(.93)}75%{transform:scaleY(.95) scaleX(1.04)}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes rotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+/* ── DISH CARD — premier affichage ── */
+@keyframes dishEnter{
+  0%  {opacity:0;transform:translateY(48px) scale(.88) rotateX(12deg)}
+  60% {opacity:1;transform:translateY(-6px) scale(1.02) rotateX(0deg)}
+  80% {transform:translateY(2px) scale(.99)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes plateReveal{
+  0%  {opacity:0;transform:scale(.6) rotate(-8deg)}
+  60% {opacity:1;transform:scale(1.08) rotate(2deg)}
+  100%{opacity:1;transform:scale(1) rotate(0deg)}
+}
+@keyframes ingredientFloat{
+  0%  {opacity:0;transform:translateY(10px)}
+  100%{opacity:1;transform:translateY(0)}
+}
+@keyframes priceSlide{
+  0%  {opacity:0;transform:translateX(16px)}
+  100%{opacity:1;transform:translateX(0)}
+}
+@keyframes shimmerPlate{
+  0%  {background-position:-300px 0}
+  100%{background-position:300px 0}
+}
+@keyframes badgePop{
+  0%  {opacity:0;transform:scale(0) rotate(-10deg)}
+  70% {transform:scale(1.15) rotate(2deg)}
+  100%{opacity:1;transform:scale(1) rotate(0)}
+}
+@keyframes tagWave{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-3px) rotate(1deg)}}
+@keyframes glowRing{0%,100%{box-shadow:0 0 0 0 rgba(239,159,39,0)}50%{box-shadow:0 0 0 6px rgba(239,159,39,.12)}}
+
+/* ── DISH CARD BASE ── */
+.dish-card{
+  background:#fff;
+  border-radius:4px;
+  overflow:hidden;
+  border:1px solid var(--g1);
+  cursor:pointer;
+  position:relative;
+  perspective:800px;
+  transition:
+    transform .45s cubic-bezier(.16,1,.3,1),
+    box-shadow .45s cubic-bezier(.16,1,.3,1),
+    border-color .3s;
+}
+/* Scroll reveal state (hidden before visible) */
+.dish-card.scroll-hidden{opacity:0;transform:translateY(48px) scale(.9)}
+/* Animate in when visible */
+.dish-card.entering{
+  animation:dishEnter .75s cubic-bezier(.16,1,.3,1) both;
+}
+/* Hover lift */
+.dish-card:hover{
+  transform:translateY(-10px) scale(1.025);
+  border-color:var(--a3);
+  animation:glowRing 1.8s ease-in-out infinite;
+}
+
+/* ── PLATE VISUAL ── */
+.dish-plate{
+  height:160px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.dish-plate svg{transition:transform .5s cubic-bezier(.16,1,.3,1)}
+.dish-card:hover .dish-plate svg{transform:scale(1.12) rotate(4deg)}
+.dish-card.entering .dish-plate svg{animation:plateReveal .6s .2s cubic-bezier(.16,1,.3,1) both}
+
+/* Shimmer overlay on hover */
+.dish-plate::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.18) 50%,transparent 70%);
+  background-size:300px 100%;background-position:-300px 0;
+  opacity:0;transition:opacity .3s;
+}
+.dish-card:hover .dish-plate::after{opacity:1;animation:shimmerPlate .7s ease forwards}
+
+/* ── CARD BODY ── */
+.dish-body{padding:1.25rem}
+.dish-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem}
+.dish-name{
+  font-family:'Playfair Display',serif;font-size:16px;color:var(--g9);font-weight:400;
+  transition:color .25s;
+}
+.dish-card:hover .dish-name{color:var(--a8)}
+.dish-card.entering .dish-name{animation:fadeUp .5s .35s both}
+
+.dish-price{
+  color:var(--a7);font-size:15px;font-weight:500;white-space:nowrap;margin-left:1rem;
+  transition:transform .3s cubic-bezier(.16,1,.3,1),color .3s;
+}
+.dish-card:hover .dish-price{color:var(--a5);transform:scale(1.12)}
+.dish-card.entering .dish-price{animation:priceSlide .5s .45s both}
+
+.dish-desc{
+  font-size:13px;color:var(--g6);line-height:1.65;margin-bottom:.6rem;
+  transition:color .25s;
+}
+.dish-card:hover .dish-desc{color:var(--g8)}
+.dish-card.entering .dish-desc{animation:ingredientFloat .5s .55s both}
+
+/* Hover ingredient chips */
+.chips{display:flex;flex-wrap:wrap;gap:4px;max-height:0;overflow:hidden;opacity:0;transition:max-height .4s cubic-bezier(.16,1,.3,1),opacity .35s}
+.dish-card:hover .chips{max-height:60px;opacity:1}
+.chip{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--g0);color:var(--g8);letter-spacing:.5px;border:1px solid var(--g1);white-space:nowrap}
+
+.dish-badge{
+  font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:2px;display:inline-block;margin-top:.5rem;
+}
+.dish-card.entering .dish-badge{animation:badgePop .5s .65s cubic-bezier(.16,1,.3,1) both;animation-fill-mode:both}
+.dish-card:not(.entering) .dish-badge{animation:tagWave 3s ease-in-out infinite}
+.b-veg{background:#eaf3de;color:#3B6D11}
+.b-sea{background:var(--a1);color:var(--a8)}
+.b-sig{background:#e6f1fb;color:#185FA5}
+.b-vgn{background:#E1F5EE;color:#0F6E56}
+.b-gf{background:#FBEAF0;color:#993556}
+.b-na{background:var(--g0);color:var(--g8)}
+
+/* Hover reveal bottom bar */
+.dish-footer{
+  height:0;overflow:hidden;background:var(--a9);
+  display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem;
+  transition:height .35s cubic-bezier(.16,1,.3,1);
+}
+.dish-card:hover .dish-footer{height:38px}
+.dish-footer span{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--a2)}
+.dish-footer-arrow{color:var(--a3);font-size:16px;transition:transform .3s}
+.dish-card:hover .dish-footer-arrow{transform:translateX(4px)}
+
+/* ── NAV ── */
+nav{background:var(--a9);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;animation:navIn .6s cubic-bezier(.16,1,.3,1) both}
+.logo{color:var(--a1);font-family:'Playfair Display',serif;font-size:22px;font-weight:700}
+.logo-sub{color:var(--a3);font-size:10px;letter-spacing:4px;text-transform:uppercase;display:block;font-family:var(--font-sans);font-weight:400}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{color:var(--a2);text-decoration:none;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;opacity:.8;transition:opacity .2s;position:relative}
+.nav-links a::after{content:'';position:absolute;bottom:-3px;left:0;width:0;height:1px;background:var(--a3);transition:width .3s cubic-bezier(.16,1,.3,1)}
+.nav-links a:hover{opacity:1}.nav-links a:hover::after{width:100%}
+.nav-btn{background:var(--a3);color:var(--a9);padding:9px 20px;border-radius:2px;text-decoration:none;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:500;transition:transform .2s cubic-bezier(.16,1,.3,1),background .2s}
+.nav-btn:hover{background:var(--a2);transform:translateY(-1px)}
+
+/* ── HERO ── */
+.hero{background:var(--a9);padding:5rem 2rem 4rem;text-align:center;overflow:hidden;position:relative}
+.orb{position:absolute;border-radius:50%;border:1px solid rgba(239,159,39,.07);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.orb1{width:560px;height:560px;animation:rotate 42s linear infinite}
+.orb2{width:340px;height:340px;animation:rotate 28s linear infinite reverse}
+.hero-eyebrow{color:var(--a3);font-size:11px;letter-spacing:5px;text-transform:uppercase;margin-bottom:1.5rem;animation:fadeUp .7s .15s both}
+.hero-h1{color:var(--a1);font-family:'Playfair Display',serif;font-size:clamp(44px,8vw,90px);font-weight:400;line-height:1.05;margin-bottom:1rem;animation:fadeUp .8s .3s both}
+.hero-h1 em{color:var(--a3);font-style:italic;display:inline-block;animation:flamePulse 4s 1.4s ease-in-out infinite}
+.hero-sub{color:var(--a2);font-size:15px;line-height:1.8;max-width:440px;margin:0 auto 2.5rem;opacity:.85;animation:fadeUp .8s .45s both}
+.hero-ctas{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;animation:fadeUp .7s .6s both}
+.btn-p{background:var(--a3);color:var(--a9);padding:13px 30px;text-decoration:none;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:500;border-radius:2px;display:inline-block;transition:transform .25s cubic-bezier(.16,1,.3,1),background .2s}
+.btn-p:hover{background:var(--a2);transform:translateY(-2px)}
+.btn-o{border:1px solid var(--a3);color:var(--a3);padding:13px 30px;text-decoration:none;font-size:11px;letter-spacing:2px;text-transform:uppercase;border-radius:2px;display:inline-block;transition:transform .25s cubic-bezier(.16,1,.3,1),background .2s}
+.btn-o:hover{background:rgba(239,159,39,.1);transform:translateY(-2px)}
+.hero-line{width:0;height:1px;background:var(--a5);margin:2.5rem auto 0;animation:heroLine .9s .8s cubic-bezier(.16,1,.3,1) forwards}
+.flame{width:28px;margin:1.5rem auto 0;animation:floatY 3s 1s ease-in-out infinite,fadeUp .5s .9s both}
+
+/* ── TICKER ── */
+.ticker-wrap{background:var(--a8);overflow:hidden;padding:12px 0;white-space:nowrap}
+.ticker-inner{display:inline-flex;animation:ticker 22s linear infinite}
+.t-item{display:inline-flex;align-items:center;padding:0 2rem;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--a2)}
+.t-dot{width:4px;height:4px;border-radius:50%;background:var(--a3);margin:0 1.5rem}
+
+/* ── SECTION ── */
+section{padding:5rem 2rem}
+.sec-header{text-align:center;margin-bottom:3rem}
+.eyebrow{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--a5)}
+.sec-header h2{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,42px);color:var(--g9);font-weight:400;margin:.5rem 0}
+.div-line{width:50px;height:1px;background:var(--a3);margin:.75rem auto 0}
+
+/* ── MENU TABS ── */
+.menu-bg{background:#fff}
+.tabs{display:flex;justify-content:center;border-bottom:1px solid var(--g1);margin-bottom:3rem}
+.tab{padding:11px 26px;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;color:var(--g6);border-bottom:2px solid transparent;background:none;border-left:none;border-right:none;border-top:none;transition:color .25s,border-color .25s}
+.tab.active{color:var(--a8);border-bottom-color:var(--a5)}
+.tab:hover{color:var(--a8)}
+.cat{display:none}.cat.active{display:block}
+.dish-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1.5rem;max-width:980px;margin:0 auto}
+
+/* ── ABOUT ── */
+.about-bg{background:var(--a1)}
+.about-in{display:grid;grid-template-columns:1fr 1fr;gap:4rem;max-width:960px;margin:0 auto;align-items:center}
+.about-vis{background:var(--a2);aspect-ratio:4/5;border-radius:2px;display:flex;align-items:center;justify-content:center}
+.about-yr{font-family:'Playfair Display',serif;font-size:80px;color:var(--a5);line-height:1;transition:transform .4s cubic-bezier(.16,1,.3,1)}
+.about-vis:hover .about-yr{transform:scale(1.08);color:var(--a7)}
+.about-yrlbl{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--a7);margin-top:.4rem;text-align:center}
+.about-text h2{font-family:'Playfair Display',serif;font-size:clamp(26px,3vw,36px);color:var(--a9);font-weight:400;margin-bottom:1.5rem}
+.about-text p{font-size:15px;color:var(--g8);line-height:1.8;margin-bottom:1.2rem}
+.stats{display:flex;gap:2rem;margin-top:2rem;padding-top:2rem;border-top:1px solid var(--a3)}
+.stat{text-align:center;transition:transform .3s cubic-bezier(.16,1,.3,1)}
+.stat:hover{transform:translateY(-4px)}
+.stat-n{font-family:'Playfair Display',serif;font-size:36px;color:var(--a8)}
+.stat-l{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--g6);margin-top:.2rem}
+
+/* ── RES ── */
+.res-bg{background:var(--g0)}
+.res-in{display:grid;grid-template-columns:1fr 1.5fr;gap:4rem;max-width:960px;margin:0 auto}
+.res-info h2{font-family:'Playfair Display',serif;font-size:clamp(24px,3vw,34px);color:var(--a9);font-weight:400;margin-bottom:1.25rem}
+.res-info p{font-size:14px;color:var(--g6);line-height:1.8;margin-bottom:1.5rem}
+.res-hours dt{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--g6);margin-top:.75rem}
+.res-hours dd{font-size:13px;color:var(--g9)}
+.res-form{background:#fff;padding:2rem;border-radius:2px;border:1px solid var(--g1);transition:transform .35s cubic-bezier(.16,1,.3,1)}
+.res-form:hover{transform:translateY(-4px)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.form-g{margin-bottom:1rem}
+.form-g label{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--g6);margin-bottom:.4rem;transition:color .2s}
+.form-g:focus-within label{color:var(--a7)}
+.form-g input,.form-g select,.form-g textarea{width:100%;padding:10px 14px;border:1px solid var(--g1);border-radius:2px;font-size:14px;background:var(--g0);color:var(--g9);transition:border-color .25s,background .25s}
+.form-g input:focus,.form-g select:focus,.form-g textarea:focus{outline:none;border-color:var(--a5);background:#fff}
+.form-g textarea{resize:vertical;min-height:75px}
+.btn-sub{width:100%;background:var(--a8);color:var(--a1);padding:13px;border:none;cursor:pointer;font-size:11px;letter-spacing:2px;text-transform:uppercase;border-radius:2px;margin-top:.5rem;transition:background .25s,transform .2s cubic-bezier(.16,1,.3,1)}
+.btn-sub:hover{background:var(--a9);transform:translateY(-1px)}
+.btn-sub:active{transform:scale(.98)}
+
+/* ── SCROLL REVEAL ── */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+.reveal.vis{opacity:1;transform:translateY(0)}
+.reveal-l{opacity:0;transform:translateX(-32px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+.reveal-l.vis{opacity:1;transform:translateX(0)}
+.reveal-r{opacity:0;transform:translateX(32px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+.reveal-r.vis{opacity:1;transform:translateX(0)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--a9);color:var(--a1);padding:14px 28px;border-radius:2px;font-size:13px;opacity:0;pointer-events:none;z-index:999;border-left:3px solid var(--a3);transition:opacity .4s,transform .4s cubic-bezier(.16,1,.3,1)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── FOOTER ── */
+footer{background:var(--a9);padding:3rem 2rem 2rem;color:var(--a2)}
+.ft-inner{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2rem;max-width:960px;margin:0 auto;padding-bottom:2rem;border-bottom:1px solid var(--a8)}
+.ft-brand-name{color:var(--a1);font-family:'Playfair Display',serif;font-size:20px;font-weight:700}
+.ft-brand-p{font-size:13px;color:var(--a5);line-height:1.7;margin-top:.75rem}
+.ft-col h5{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--a5);margin-bottom:1rem}
+.ft-col ul{list-style:none}
+.ft-col li{margin-bottom:.5rem}
+.ft-col a{color:var(--a2);text-decoration:none;font-size:13px;opacity:.75;transition:opacity .2s,transform .2s;display:inline-block}
+.ft-col a:hover{opacity:1;transform:translateX(3px)}
+.ft-bottom{max-width:960px;margin:1.5rem auto 0;display:flex;justify-content:space-between}
+.ft-bottom p{font-size:11px;color:var(--a5)}
+
+@media(max-width:768px){
+  .nav-links{display:none}
+  .about-in,.res-in{grid-template-columns:1fr}
+  .about-vis{display:none}
+  .form-row{grid-template-columns:1fr}
+  .ft-inner{grid-template-columns:1fr 1fr}
+}
+</style>
+
+<div class="toast" id="toast">Votre table est réservée. À bientôt !</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Ember & Oak<span class="logo-sub">Fine Dining · NYC</span></div>
+  <ul class="nav-links">
+    <li><a href="#menu">Menu</a></li>
+    <li><a href="#about">Notre Histoire</a></li>
+    <li><a href="#reservations">Réservation</a></li>
+  </ul>
+  <a href="#reservations" class="nav-btn">Réserver</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="orb orb1"></div><div class="orb orb2"></div>
+  <p class="hero-eyebrow">Fondé en 2009 · West Village, New York</p>
+  <h1 class="hero-h1">Là où le Feu<br>Rencontre la <em>Saveur</em></h1>
+  <p class="hero-sub">Une cuisine américaine contemporaine guidée par le feu de bois, les produits de saison et le respect du métier.</p>
+  <div class="hero-ctas">
+    <a href="#menu" class="btn-p">Voir le Menu</a>
+    <a href="#reservations" class="btn-o">Réserver une Table</a>
+  </div>
+  <div class="hero-line"></div>
+  <div class="flame">
+    <svg viewBox="0 0 32 42" width="28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16 40C16 40 4 31 4 19C4 10 10 4 16 4C16 4 14 11 18 15C20 17 24 17 24 17C24 17 28 23 24 31C22 35 18 37 16 40Z" fill="#EF9F27" opacity=".9"/>
+      <path d="M16 40C16 40 10 33 10 25C10 19 14 15 16 15C16 15 15 19 18 21C20 23 22 23 22 23C22 23 24 27 20 33C18 36 16 40 16 40Z" fill="#FAC775"/>
+      <path d="M16 40C16 40 13 35 13 30C13 26 15 23 16 23C16 23 16 26 18 28C19 29 20 29 20 29C20 29 21 32 18 35L16 40Z" fill="#FAEEDA" opacity=".8"/>
+    </svg>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-inner">
+    <span class="t-item">Huîtres au Feu de Bois<span class="t-dot"></span></span>
+    <span class="t-item">Côte de Bœuf Fumée<span class="t-dot"></span></span>
+    <span class="t-item">Menu Dégustation Saisonnier<span class="t-dot"></span></span>
+    <span class="t-item">Nominé James Beard<span class="t-dot"></span></span>
+    <span class="t-item">Réservations Ouvertes<span class="t-dot"></span></span>
+    <span class="t-item">De la Ferme à l'Assiette<span class="t-dot"></span></span>
+    <span class="t-item">Trois Distinctions Michelin<span class="t-dot"></span></span>
+    <span class="t-item">Huîtres au Feu de Bois<span class="t-dot"></span></span>
+    <span class="t-item">Côte de Bœuf Fumée<span class="t-dot"></span></span>
+    <span class="t-item">Menu Dégustation Saisonnier<span class="t-dot"></span></span>
+    <span class="t-item">Nominé James Beard<span class="t-dot"></span></span>
+    <span class="t-item">Réservations Ouvertes<span class="t-dot"></span></span>
+    <span class="t-item">De la Ferme à l'Assiette<span class="t-dot"></span></span>
+    <span class="t-item">Trois Distinctions Michelin<span class="t-dot"></span></span>
+  </div>
+</div>
+
+<!-- MENU -->
+<section id="menu" class="menu-bg">
+  <div class="sec-header reveal">
+    <span class="eyebrow">Notre Cuisine</span>
+    <h2>Un Menu Guidé par les Saisons</h2>
+    <div class="div-line"></div>
+  </div>
+  <div class="tabs reveal">
+    <button class="tab active" onclick="switchTab('entrees',this)">Entrées</button>
+    <button class="tab" onclick="switchTab('plats',this)">Plats</button>
+    <button class="tab" onclick="switchTab('desserts',this)">Desserts</button>
+    <button class="tab" onclick="switchTab('boissons',this)">Boissons</button>
+  </div>
+
+  <!-- ENTRÉES -->
+  <div id="entrees" class="cat active">
+    <div class="dish-grid" id="grid-entrees">
+      <div class="dish-card scroll-hidden" data-chips="ricotta,betteraves,noix,balsamique">
+        <div class="dish-plate" style="background:#fdf6ec">
+          <svg width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="32" fill="#f5e6c8" stroke="#e8c97a" stroke-width="1.5"/><ellipse cx="40" cy="42" rx="20" ry="8" fill="#e8b96b" opacity=".6"/><circle cx="32" cy="36" r="5" fill="#c0392b" opacity=".75"/><circle cx="48" cy="38" r="4" fill="#c0392b" opacity=".6"/><circle cx="40" cy="33" r="3.5" fill="#c0392b" opacity=".5"/><path d="M28 44 Q40 38 52 44" stroke="#9b7a3d" stroke-width="1" fill="none" opacity=".5"/></svg>
+        </div>
+        <div class="dish-body">
+          <div class="dish-header"><span class="dish-name">Crostini Ricotta Fouettée</span><span class="dish-price">14€</span></div>
+          <p class="dish-desc">Betteraves rôties, noix, balsamique vieilli, huile d'herbes fraîches</p>
+          <div class="chips"></div>
+          <span class="dish-badge b-veg">Végétarien</span>
+        </div>
+        <div class="dish-footer"><span>Voir les détails</span><span class="dish-footer-arrow">→</span></div>
+      </div>
+      <div class="dish-card scroll-hidden" data-chips="huîtres,beurre fumé,cendre de poireau,crouton">
+        <div class="dish-plate" style="background:#eef6f8">
+          <svg width="80" height="80" viewBox="0 0 80 80"><ellipse cx="40" cy="44" rx="30" ry="18" fill="#d4eef6" stroke="#89c4d4" stroke-width="1.5"/><ellipse cx="40" cy="42" rx="22" ry="12" fill="#b8dce8" opacity=".7"/><path d="M28 42 Q35 35 42 42 Q49 35 52 42" stroke="#5ba3b8" stroke-width="1.5" fill="none"/><circle cx="36" cy="38" r="3" fill="#7ecae0" opacity=".6"/><circle cx="44" cy="39" r="2.5" fill="#7ecae0" opacity=".6"/></svg>
+        </div>
+        <div class="dish-body">
+          <div class="dish-header"><span class="dish-name">Huîtres au Feu de Bois</span><span class="dish-price">22€</span></div>
+          <p class="dish-desc">Six huîtres, beurre fumé, cendre de poireau, crouton au levain</p>
+          <div class="chips"></div>
+          <span class="dish-badge b-sig">Signature</span>
+        </div>
+        <div class="dish-footer"><span>Voir les détails</span><span class="dish-footer-arrow">→</span></div>
+      </div>
+      <div class="dish-card scroll-hidden" data-chips="burrata,pêche,basilic,vinaigre">
+        <div class="dish-plate" style="background:#fffbf0">
+          <svg width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="28" fill="#fff8e8" stroke="#f0d080" stroke-width="1.5"/><circle cx="40" cy="40" r="14" fill="#fff" stroke="#e8c060" stroke-width="1"/><circle cx="38" cy="38" r="5" fill="#f9f5ee"/><circle cx="26" cy="36" r="5" fill="#f8a060" opacity=".8"/><circle cx="52" cy="36" r="4.5" fill="#f8a060" opacity=".7"/><circle cx="40" cy="52" r="4" fill="#f8a060" opacity=".7"/><path d="M32 28 Q40 24 48 28" stroke="#4a9060" stroke-width="1.5" fill="none" opacity=".6"/></svg>
+        </div>
+        <div class="dish-body">
+          <div class="dish-header"><span class="dish-name">Salade Tomate Ancienne</span><span class="dish-price">18€</span></div>
+          <p class="dish-desc">Burrata, pêche grillée, basilic, vinaigrette au xérès vieilli</p>
+          <div class="chips"></div>
+          <span class="dish-badge b-sea">Saisonnier</span>
+        </div>
+        <div class="dish-footer"><span>Voir les détails</span><span class="dish-footer-arrow">→</span></div>
+      </div>
+      <div class="dish-card scroll-hidden" data-chips="foie de canard,brioche,cornichons,frisée">
+        <div class="dish-plate" style="background:#fdf4e8">
+          <svg width="80" height="80" viewBox="0 0 80 80"><rect x="16" y="36" width="48" height="8" rx="4" fill="#e8c898" stroke="#c8a060" stroke-width="1"/><rect x="20" y="28" width="40" height="10" rx="3" fill="#d4a870" stroke="#b88040" stroke-width="1"/><ellipse cx="40" cy="32" rx="15" ry="6" fill="#c08040" opacity=".8"/><circle cx="32" cy="30" r="2.5" fill="#808060" opacity=".7"/><circle cx="48" cy="30" r="2" fill="#808060" opacity=".6"/></svg>
+        </div>
+        <div class="dish-body">
+          <div class="dish-header"><span class="dish-name">Mousse de Foie de Canard</span><span class="dish-price">19€</span></div>
+          <p class="dish-desc">Toast brioché, cornichons, graines de moutarde, frisée</p>
+          <div class="chips"></div>
+        </div>
+        <div class="dish-footer"><span>Voir les détails</span><span class="dish-footer-arrow">→</span></div>
+      </div>
+      <div class="dish-card scroll-hidden" data-chips="os à moelle,gremolata,câpres,persil">
+        <div class="dish-plate" style="background:#fdf8f0">
+          <svg width="80" height="80" viewBox="0 0 80 80"><rect x="28" y="22" width="24" height="36" rx="12" fill="#e8d0b0" stroke="#c0a080" stroke-width="1.5"/><ellipse cx="40" cy="22" rx="12" ry="5" fill="#d0b898" stroke="#b09060" stroke-width="1"/><ellipse cx="40" cy="58" rx="12" ry="5" fill="#d0b898" stroke="#b09060" stroke-width="1"/><circle cx="40" cy="40" r="8" fill="#c8a878" opacity=".6"/><path d="M36 36 Q40 32 44 36 Q40 40 36 36Z" fill="#98b870" opacity=".7"/></svg>
+        </div>
+        <div class="dish-body">
+          <div class="dish-header"><span class="dish-name">Os à Moelle Rôti</span><span class="dish-price">21€</span></div>
+          <p class="dish-desc">Gremolata, câpres, salade de persil, pain au levain grillé</p>
+          <div class="chips"></div>
+        </div>
+        <div class="dish-footer"><span>Voir les détails</span><span class="dish-footer-arrow">→</span></div>
+      </div>
+      <div class="dish-card scroll-hidden" data-chips="carotte,crème gingembre,noisette,cerfeuil">
+        <div class="dish-plate" style="background:#fff8f0">
+          <svg width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="44" r="26" fill="#fde8c8" stroke="#f0b860" stroke-width="1.5"/><ellipse cx="40" cy="44" rx="20" ry="16" fill="#f8d090" opacity=".7"/><ellipse cx="40" cy="38" rx="8" ry="4" fill="#fff8ee" opacity=".9"/><circle cx="28" cy="48" r="2" fill="#c8a040" opacity=".5"/><circle cx="52" cy="46" r="1.5" fill="#c8a040" opacity=".5"/></svg>
+        </div>
+        <div class="dish-body">
+          <div class="dish-header"><span class="dish-name">Velouté de Carotte Fumée</span><span class="dish-price">16€</span></div>
+          <p class="dish-desc">Crème fraîche au gingembre, huile de noisette, cerfeuil</p>
+          <div class="chips"></div>
+          <span class="dish-badge b-vgn">Vegan</span>
+        </div>
+        <div class="dish-footer"><span>Voir les détails</span><span class="dish-footer-arrow">→</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLATS -->
+  <div id="plats" class="cat">
+    <div class="dish-grid">
+      <div class="dish-card scroll-hidden" data-chips="bœuf vieilli,beurre d'ambre,jus de moelle,gratin">
+        <div class="dish-plate" style="background:#fdf2e8">
+          <svg width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="44" r="28" fill="#f0d8b8" stroke="#d0a870" stroke-width="1.5"/><ellipse cx="40" cy="44" rx="20" ry="14" fill="#c87840" opacity=".85"/><ellipse cx="40" cy="40" rx="14" ry="8" fill="#a05820" opacity=".7"/><path d="M30 38 Q40 33 50 38" stroke="#803010" stroke-width="1.5" fill="none" opacity=".6"/><circle cx="52" cy="36" r="4" fill="#f0e8c0" opacity=".6"/></svg>
+        </div>
+        <div class="dish-body">
+          <div class="dish-header"><span class="dish-name">Côte de Bœuf au Chêne</span><span class="dish-price">58€</span></div>
+          <p class="dish-desc">400g affiné, beurre d'ambre, jus de moelle rôti, gratin dauphinois</p>
+          <div class="chips"></div>
+          <span class="dish-badge b-sig">Choix du Chef</span>
+        </div>
+        <div class="dish-footer"><span>Voir les détails</span><span class="dish-footer-arrow">→</span></div>
+      </div>
+      <div class="dish-card scroll-hidden" data-chips="canard entier,gastrique cerise,légumes,pommes">
+        <div class="dish-plate" style="background:#f8f0e8">
+          <svg width="80" height="80" viewBox="0 0 80 80"><ellipse cx="40" cy="46" rx="26" ry="18" fill="#e8c898" stroke="#c8a070" stroke-width="1.5"/><ellipse cx="36" cy="38" rx="16" ry="12" fill="#b87040" opacity=".85"/><circle cx="52" cy="42" r="7" fill="#c88050" opacity=".7"/><ellipse cx="28" cy="50" rx="8" ry="4" fill="#d0a878" opacity=".5"/><circle cx="48" cy="52" r="5" fill="#c85030" opacity=".5"/></svg>
+        </div>
+        <div class="dish-body">
+          <div class="dish-header"><span class="dish-name">Canard Entier Rôti</span><span class="dish-price">48€</span></div>
+          <p class="dish-desc">Gastrique aux cerises, légumes racines rôtis, pommes de terre au gras</p>
+          <div class="chips"></div>
+        </div>
+        <div class="dish-footer"><span>Voir les détails</span><span class="dish-footer-arrow">→</span></div>
+      </div>
+      <div class="dish-card scroll-hidden" data-chips="flétan,courgette,confit tomate,beurre blanc">
+        <div class="dish-plate" style="background:#eef8f8">
+          <svg width="80" height="80" viewBox="0 0 80 80"><ellipse cx="40" cy="44" rx="28" ry="18" fill="#d8eef8" stroke="#88c8d8" stroke-width="1.5"/><path d="M18 44 Q40 32 62 44 Q40 56 18 44Z" fill="#a8d8e8" opacity=".8"/><circle cx="28" cy="48" r="4" fill="#f8c870" opacity=".7"/><circle cx="52" cy="46" r="3.5" fill="#e87060" opacity=".6"/><path d="M32 36 Q40 32 48 36" stroke="#98b8d0" stroke-width="1.5" fill="none"/></svg>
+        </div>
+        <div class="dish-body">
+          <div class="dish-header"><span class="dish-name">Flétan en Papillote</span><span class="dish-price">44€</span></div>
+          <p class="dish-desc">Courgette, confit de tomate, basilic, beurre blanc au citron</p>
+          <div class="chips"></div>
+          <span class="dish-badge b-sea">Saisonnier</span>
+        </div>
+        <div class="dish-footer"><span>Voir les détails</span><span class="dish-footer-arrow">→</span></div>
+      </div>
+      <div class="dish-card scroll-hidden" data-chips="porcini,chanterelle,truffe,parmesan">
+        <div class="dish-plate" style="background:#f8f4ec">
+          <svg width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="44" r="26" fill="#f0e8d0" stroke="#d0b880" stroke-width="1.5"/><ellipse cx="40" cy="46" rx="18" ry="12" fill="#c8a860" opacity=".7"/><circle cx="32" cy="40" r="5" fill="#806030" opacity=".6"/><circle cx="48" cy="42" r="4" fill="#907040" opacity=".6"/><circle cx="40" cy="36" r="3" fill="#a08050" opacity=".5"/><circle cx="36" cy="50" r="4" fill="#908060" opacity=".5"/></svg>
+        </div>
+        <div class="dish-body">
+          <div class="dish-header"><span class="dish-name">Risotto aux Champignons</span><span class="dish-price">32€</span></div>
+          <p class="dish-desc">Porcini, chanterelles, huile de truffe, Parmigiano-Reggiano affiné</p>
+          <div class="chips"></div>
+          <span class="dish-badge b-veg">Végétarien</span>
+        </div>
+        <div class="dish-footer"><span>Voir les détails</span><span class="dish-footer-arrow">→</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESSERTS -->
+  <div id="desserts" class="cat">
+    <div class="dish-grid">
+      <div class="dish-card scroll-hidden" data-chips="Valrhona,caramel salé,praliné,chantilly">
+        <div class="dish-plate" style="background:#2c1a08">
+          <svg width="80" height="80" viewBox="0 0 80 80"><rect x="18" y="28" width="44" height="32" rx="4" fill="#3c2210" stroke="#7a4a20" stroke-width="1.5"/><ellipse cx="40" cy="28" rx="22" ry="6" fill="#6a3a18" stroke="#9a6030" stroke-width="1"/><ellipse cx="40" cy="28" rx="14" ry="3.5" fill="#e8c040" opacity=".8"/><circle cx="30" cy="38" r="4" fill="#f0d080" opacity=".5"/><circle cx="50" cy="42" r="3" fill="#f0d080" opacity=".4"/></svg>
+        </div>
+        <div class="dish-body">
+          <div class="dish-header"><span class="dish-name">Tarte Valrhona</span><span class="dish-price">14€</span></div>
+          <p class="dish-desc">Caramel salé, praliné noisette, crème Chantilly</p>
+          <div class="chips"></div>
+          <span class="dish-badge b-sig">Signature</span>
+        </div>
+        <div class="dish-footer"><span>Voir les détails</span><span class="dish-footer-arrow">→</span></div>
+      </div>
+      <div class="dish-card scroll-hidden" data-chips="meringue,lemon curd,fruits rouges,menthe">
+        <div class="dish-plate" style="background:#f8f4f8">
+          <svg width="80" height="80" viewBox="0 0 80 80"><ellipse cx="40" cy="50" rx="26" ry="10" fill="#f0e8f0" stroke="#d8c8d8" stroke-width="1"/><path d="M18 48 Q26 20 40 18 Q54 20 62 48" fill="#fff" stroke="#e0d0e0" stroke-width="1.5"/><circle cx="30" cy="38" r="4" fill="#e84080" opacity=".7"/><circle cx="44" cy="34" r="3.5" fill="#8040e0" opacity=".6"/><circle cx="52" cy="42" r="3" fill="#e84080" opacity=".5"/><path d="M36 26 Q40 22 44 26" stroke="#70a040" stroke-width="1.5" fill="none" opacity=".7"/></svg>
+        </div>
+        <div class="dish-body">
+          <div class="dish-header"><span class="dish-name">Pavlova Saisonnière</span><span class="dish-price">13€</span></div>
+          <p class="dish-desc">Crème fouettée, lemon curd, fruits rouges frais, menthe micro</p>
+          <div class="chips"></div>
+          <span class="dish-badge b-gf">Sans Gluten</span>
+        </div>
+        <div class="dish-footer"><span>Voir les détails</span><span class="dish-footer-arrow">→</span></div>
+      </div>
+      <div class="dish-card scroll-hidden" data-chips="gelato vanille,espresso double,amaretti">
+        <div class="dish-plate" style="background:#1a0c04">
+          <svg width="80" height="80" viewBox="0 0 80 80"><rect x="26" y="30" width="28" height="32" rx="6" fill="#2a1808" stroke="#6a3a10" stroke-width="1.5"/><ellipse cx="40" cy="30" rx="14" ry="5" fill="#4a2810" stroke="#8a5020" stroke-width="1"/><ellipse cx="40" cy="38" rx="10" ry="10" fill="#f8f0e0" opacity=".9"/><path d="M34 28 Q40 20 46 28" stroke="#7a4a18" stroke-width="1.5" fill="none"/><circle cx="40" cy="38" r="4" fill="#f0d0a0" opacity=".7"/></svg>
+        </div>
+        <div class="dish-body">
+          <div class="dish-header"><span class="dish-name">Affogato al Caffè</span><span class="dish-price">12€</span></div>
+          <p class="dish-desc">Gelato maison vanille, double expresso, crumble amaretti</p>
+          <div class="chips"></div>
+        </div>
+        <div class="dish-footer"><span>Voir les détails</span><span class="dish-footer-arrow">→</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOISSONS -->
+  <div id="boissons" class="cat">
+    <div class="dish-grid">
+      <div class="dish-card scroll-hidden" data-chips="bourbon fumé,demerara,bitters,orange fumée">
+        <div class="dish-plate" style="background:#1a0c04">
+          <svg width="80" height="80" viewBox="0 0 80 80"><path d="M28 26 L24 56 Q24 60 40 60 Q56 60 56 56 L52 26Z" fill="#2a1008" stroke="#7a4010" stroke-width="1.5"/><ellipse cx="40" cy="26" rx="12" ry="4" fill="#5a2a08" stroke="#9a5018" stroke-width="1"/><ellipse cx="40" cy="38" rx="10" ry="8" fill="#c05010" opacity=".5"/><circle cx="40" cy="32" r="6" fill="#e88020" opacity=".3"/><path d="M34 48 Q40 44 46 48" stroke="#e89030" stroke-width="1" fill="none" opacity=".6"/></svg>
+        </div>
+        <div class="dish-body">
+          <div class="dish-header"><span class="dish-name">Ember Old Fashioned</span><span class="dish-price">18€</span></div>
+          <p class="dish-desc">Bourbon fumé, demerara, bitters aromatiques, zeste d'orange fumée</p>
+          <div class="chips"></div>
+          <span class="dish-badge b-sig">Signature</span>
+        </div>
+        <div class="dish-footer"><span>Voir les détails</span><span class="dish-footer-arrow">→</span></div>
+      </div>
+      <div class="dish-card scroll-hidden" data-chips="sureau,concombre,basilic,prosecco">
+        <div class="dish-plate" style="background:#e8f4e8">
+          <svg width="80" height="80" viewBox="0 0 80 80"><path d="M30 24 L26 58 Q26 62 40 62 Q54 62 54 58 L50 24Z" fill="#e0f0e0" stroke="#80c080" stroke-width="1.5"/><ellipse cx="40" cy="24" rx="10" ry="3.5" fill="#b0d8b0" stroke="#70a870" stroke-width="1"/><ellipse cx="40" cy="40" rx="10" ry="12" fill="#a8d890" opacity=".5"/><circle cx="36" cy="36" r="3" fill="#d0e870" opacity=".6"/><circle cx="44" cy="44" r="2.5" fill="#70c070" opacity=".5"/></svg>
+        </div>
+        <div class="dish-body">
+          <div class="dish-header"><span class="dish-name">Garden Spritz</span><span class="dish-price">16€</span></div>
+          <p class="dish-desc">Liqueur de sureau, concombre, basilic, prosecco, citron vert</p>
+          <div class="chips"></div>
+        </div>
+        <div class="dish-footer"><span>Voir les détails</span><span class="dish-footer-arrow">→</span></div>
+      </div>
+      <div class="dish-card scroll-hidden" data-chips="Seedlip,aperitif,bitters pamplemousse,orange">
+        <div class="dish-plate" style="background:#f0eef8">
+          <svg width="80" height="80" viewBox="0 0 80 80"><path d="M28 26 L24 56 Q24 60 40 60 Q56 60 56 56 L52 26Z" fill="#e8e4f8" stroke="#9090d0" stroke-width="1.5"/><ellipse cx="40" cy="26" rx="12" ry="4" fill="#d0c8f0" stroke="#8888c8" stroke-width="1"/><circle cx="40" cy="44" r="10" fill="#b090e0" opacity=".35"/><ellipse cx="36" cy="36" rx="5" ry="6" fill="#f0a050" opacity=".5"/></svg>
+        </div>
+        <div class="dish-body">
+          <div class="dish-header"><span class="dish-name">Negroni Zero Alcool</span><span class="dish-price">14€</span></div>
+          <p class="dish-desc">Seedlip Grove, apéritif Lyre's, bitters pamplemousse, orange</p>
+          <div class="chips"></div>
+          <span class="dish-badge b-na">Sans Alcool</span>
+        </div>
+        <div class="dish-footer"><span>Voir les détails</span><span class="dish-footer-arrow">→</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="about-bg">
+  <div class="about-in">
+    <div class="about-vis reveal-l">
+      <div style="text-align:center">
+        <div class="about-yr">2009</div>
+        <div class="about-yrlbl">Fondé à New York</div>
+      </div>
+    </div>
+    <div class="about-text reveal-r">
+      <span class="eyebrow">Notre Histoire</span>
+      <h2 style="margin:.5rem 0 1.5rem">Cuit au Feu,<br>Servi avec l'Âme</h2>
+      <p>Ember & Oak est né d'une conviction simple : la meilleure cuisine commence par des ingrédients exceptionnels. La cheffe Isabelle Laurent est revenue de Lyon avec une seule vision — un feu de bois au cœur de chaque assiette.</p>
+      <p>Quinze ans plus tard, nous travaillons toujours avec les mêmes douze fermes. Nous changeons le menu chaque saison. Nous cuisinons comme nos grands-mères nous l'ont appris — lentement et avec soin.</p>
+      <div class="stats">
+        <div class="stat"><div class="stat-n" id="s1">0</div><div class="stat-l">Années</div></div>
+        <div class="stat"><div class="stat-n" id="s2">0</div><div class="stat-l">Fermes</div></div>
+        <div class="stat"><div class="stat-n" id="s3">0</div><div class="stat-l">Distinctions</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESERVATIONS -->
+<section id="reservations" class="res-bg">
+  <div class="sec-header reveal"><span class="eyebrow">Réserver une Table</span><h2>Une Soirée Inoubliable</h2><div class="div-line"></div></div>
+  <div class="res-in">
+    <div class="res-info reveal-l">
+      <h2>Rejoignez-Nous</h2>
+      <p>Pour les groupes de 8 personnes et plus, veuillez nous appeler. Des salons privés sont disponibles pour vos événements spéciaux.</p>
+      <dl class="res-hours">
+        <dt>Lun – Ven</dt><dd>Déjeuner 12h–14h30 · Dîner 18h–22h30</dd>
+        <dt>Samedi</dt><dd>Dîner uniquement : 17h30–23h00</dd>
+        <dt>Dimanche</dt><dd>Brunch 11h–15h · Dîner 18h–21h30</dd>
+        <dt>Téléphone</dt><dd>+1 (212) 555-0183</dd>
+      </dl>
+    </div>
+    <div class="res-form reveal-r">
+      <div class="form-row"><div class="form-g"><label>Prénom</label><input type="text" placeholder="Isabelle"></div><div class="form-g"><label>Nom</label><input type="text" placeholder="Laurent"></div></div>
+      <div class="form-row"><div class="form-g"><label>Date</label><input type="date"></div><div class="form-g"><label>Heure</label><select><option>19h00</option><option>19h30</option><option>20h00</option><option>20h30</option><option>21h00</option></select></div></div>
+      <div class="form-row"><div class="form-g"><label>Couverts</label><select><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option></select></div><div class="form-g"><label>Téléphone</label><input type="tel" placeholder="+33 6 00 00 00 00"></div></div>
+      <div class="form-g"><label>Email</label><input type="email" placeholder="vous@email.com"></div>
+      <div class="form-g"><label>Demandes Spéciales</label><textarea placeholder="Allergies, anniversaires, régimes..."></textarea></div>
+      <button class="btn-sub" onclick="handleRes()">Confirmer la Réservation</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-inner">
+    <div><div class="ft-brand-name">Ember & Oak</div><p class="ft-brand-p">Cuisine américaine contemporaine au feu de bois. West Village, New York depuis 2009.</p></div>
+    <div class="ft-col"><h5>Explorer</h5><ul><li><a href="#menu">Menu</a></li><li><a href="#about">Notre Histoire</a></li><li><a href="#">Événements Privés</a></li><li><a href="#">Cartes Cadeaux</a></li></ul></div>
+    <div class="ft-col"><h5>Visiter</h5><ul><li><a href="#">45 Commerce St</a></li><li><a href="#">West Village, NY</a></li><li><a href="#">+1 (212) 555-0183</a></li></ul></div>
+    <div class="ft-col"><h5>Suivre</h5><ul><li><a href="#">Instagram</a></li><li><a href="#">OpenTable</a></li><li><a href="#">Resy</a></li></ul></div>
+  </div>
+  <div class="ft-bottom"><p>© 2024 Ember & Oak. Tous droits réservés.</p><p>Confidentialité · Mentions légales</p></div>
+</footer>
+
+<script>
+/* ── CHIPS from data attr ── */
+document.querySelectorAll('.dish-card').forEach(card => {
+  const raw = card.dataset.chips || '';
+  const chips = raw.split(',').map(s => s.trim()).filter(Boolean);
+  const wrap = card.querySelector('.chips');
+  if (wrap && chips.length) {
+    wrap.innerHTML = chips.map(c => `<span class="chip">${c}</span>`).join('');
+  }
+});
+
+/* ── SCROLL-TRIGGERED DISH ANIMATIONS ── */
+const dishObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting && e.target.classList.contains('scroll-hidden')) {
+      const card = e.target;
+      const siblings = Array.from(card.parentElement.querySelectorAll('.dish-card.scroll-hidden'));
+      const idx = siblings.indexOf(card);
+      setTimeout(() => {
+        card.classList.remove('scroll-hidden');
+        card.classList.add('entering');
+        card.style.animationDelay = (idx * 0.08) + 's';
+      }, idx * 80);
+      dishObserver.unobserve(card);
+    }
+  });
+}, {threshold: 0.12, rootMargin: '0px 0px -40px 0px'});
+document.querySelectorAll('.dish-card.scroll-hidden').forEach(c => dishObserver.observe(c));
+
+/* ── GENERAL SCROLL REVEAL ── */
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('vis'); revealObs.unobserve(e.target); } });
+}, {threshold: 0.12});
+document.querySelectorAll('.reveal,.reveal-l,.reveal-r').forEach(el => revealObs.observe(el));
+
+/* ── STATS COUNTER ── */
+const statsTargets = {s1:15, s2:12, s3:3};
+let counted = false;
+const statsSection = document.querySelector('.stats');
+if (statsSection) {
+  const so = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting && !counted) {
+        counted = true;
+        Object.entries(statsTargets).forEach(([id, end]) => {
+          const el = document.getElementById(id); if (!el) return;
+          let v = 0; const dur = 1200, step = 16;
+          const t = setInterval(() => { v += end/(dur/step); el.textContent = Math.min(Math.round(v), end); if (Math.round(v) >= end) clearInterval(t); }, step);
+        });
+      }
+    });
+  }, {threshold: .3});
+  so.observe(statsSection);
+}
+
+/* ── MENU TABS ── */
+function switchTab(id, el) {
+  document.querySelectorAll('.cat').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+  /* re-trigger dish animations for newly visible tab */
+  document.querySelectorAll('#'+id+' .dish-card').forEach((card, idx) => {
+    card.classList.remove('entering');
+    void card.offsetWidth;
+    setTimeout(() => {
+      card.classList.add('entering');
+    }, idx * 80);
+  });
+}
+
+/* ── TOAST ── */
+function handleRes() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+/* ── NAV SCROLL EFFECT ── */
+window.addEventListener('scroll', () => {
+  document.querySelector('nav').style.borderBottom = window.scrollY > 8 ? '1px solid rgba(99,56,6,.4)' : 'none';
+}, {passive:true});
+</script>
